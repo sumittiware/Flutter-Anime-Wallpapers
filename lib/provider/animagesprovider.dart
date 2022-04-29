@@ -12,64 +12,48 @@ class AnImagesProvider with ChangeNotifier {
 
   DataStatus status = DataStatus.loading;
   List<dynamic> _images = [];
+
+  int? _currentIndex;
   String _currentType = "sfw";
   String _currentCategory = "waifu";
+
   List<String> sfwCat = [
     "waifu",
     "neko",
     "shinobu",
     "megumin",
-    "bully",
-    "cuddle",
-    "cry",
-    "hug",
-    "awoo",
-    "kiss",
-    "lick",
-    "pat",
-    "smug",
-    "bonk",
-    "yeet",
-    "blush",
-    "smile",
-    "wave",
-    "highfive",
-    "handhold",
-    "nom",
-    "bite",
-    "glomp",
-    "slap",
-    "kill",
-    "kick",
-    "happy",
-    "wink",
-    "poke",
-    "dance",
-    "cringe"
   ];
-  List<String> nsfwCat = ["waifu", "neko", "trap", "blowjob"];
 
-  List<String> get images {
-    return [..._images];
+  List<String> nsfwCat = [
+    "waifu",
+    "neko",
+    "trap",
+  ];
+
+  // getters
+  List<String> get images => [..._images];
+  List<String> get currentCategories =>
+      (_currentType == "sfw") ? sfwCat : nsfwCat;
+  int get currentIndex => _currentIndex!;
+  String get currentType => _currentType;
+  String get currentCategory => _currentCategory;
+
+  // setters
+  void setDataStatus(DataStatus _status) {
+    status = _status;
+    notifyListeners();
   }
 
-  List<String> get currentCategories {
-    return (_currentType == "sfw") ? sfwCat : nsfwCat;
-  }
-
-  String get currentType {
-    return _currentType;
-  }
-
-  String get currentCategory {
-    return _currentCategory;
+  setCurrentImage(int index) {
+    if (index >= _images.length) return;
+    _currentIndex = index;
+    notifyListeners();
   }
 
   setCategory(String category) {
     _currentCategory = category;
     getImages();
-    status = DataStatus.loading;
-    notifyListeners();
+    setDataStatus(DataStatus.loading);
   }
 
   Future<void> getImages() async {
@@ -84,25 +68,21 @@ class AnImagesProvider with ChangeNotifier {
 
       final result = json.decode(response.body);
       _images = result['files'];
-      status = DataStatus.loaded;
-      notifyListeners();
+      setDataStatus(DataStatus.loaded);
     } catch (err) {
       throw err.toString();
     }
   }
 
-  toogleTypes() {
+  void toogleTypes() {
     if (_currentType == "sfw") {
       _currentType = "nsfw";
       _currentCategory = "waifu";
-      status = DataStatus.loading;
-      getImages();
     } else {
       _currentType = "sfw";
       _currentCategory = "waifu";
-      status = DataStatus.loading;
-      getImages();
     }
-    notifyListeners();
+    getImages();
+    setDataStatus(DataStatus.loading);
   }
 }

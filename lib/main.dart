@@ -1,5 +1,5 @@
-import 'package:animages/animagesprovider.dart';
-import 'package:animages/homepage.dart';
+import 'package:animages/provider/animagesprovider.dart';
+import 'package:animages/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,12 +15,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: AnImagesProvider())],
-      child: MaterialApp(
+      child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'AnImages',
-        theme: ThemeData(
-            primarySwatch: Colors.red, scaffoldBackgroundColor: Colors.black),
-        home: const HomePage(),
+        title: 'Waifu Wallpapers',
+        home: HomePage(),
       ),
     );
   }

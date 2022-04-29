@@ -1,5 +1,7 @@
-import 'package:animages/animagesprovider.dart';
-import 'package:animages/widget.dart';
+import 'package:animages/provider/animagesprovider.dart';
+import 'package:animages/styles/colors.dart';
+import 'package:animages/widgets/category_list.dart';
+import 'package:animages/widgets/image_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,9 +17,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final aniProvider = Provider.of<AnImagesProvider>(context);
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
         title: const Text("Waifu Wallpaper"),
-        centerTitle: true,
         actions: [
           GestureDetector(
               onTap: () => aniProvider.toogleTypes(),
@@ -30,7 +34,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body:
-          Column(children: const [Categories(), Expanded(child: ImageCard())]),
+          Column(children: const [Categories(), Expanded(child: ImageGrid())]),
     );
   }
 }
