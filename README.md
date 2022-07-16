@@ -1,6 +1,8 @@
 # Waifu Wallpapers
 
-A wallpaper app made with Flutter and [Waifu wallpapers api](https://api.waifu.pics)
+A wallpaper app(android) made with Flutter and [Waifu wallpapers api](https://api.waifu.pics)
+
+Native Kotlin is used for writing functions for Downloading image and Setting any Image as wallpaper.
 
 Screenshorts
 <br>
