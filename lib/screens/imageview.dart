@@ -1,7 +1,7 @@
 // import 'dart:ui';
 import 'package:animages/provider/animagesprovider.dart';
-import 'package:animages/widget.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
+import 'package:animages/services/wallpaper_service_handler.dart';
+import 'package:animages/widgets/bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,16 +20,15 @@ class _ImageViewState extends State<ImageView> {
     final mediaQuery = MediaQuery.of(context);
     size = mediaQuery.size;
     padding = mediaQuery.padding;
+
     return Scaffold(
-      body: Consumer<AnImagesProvider>(builder: (__, imageProvider, _) {
-        return Stack(
-          children: <Widget>[
-            _buildWallpaper(),
-            _buildBackButton(),
-            _buildOptionsButton(),
-          ],
-        );
-      }),
+      body: Stack(
+        children: <Widget>[
+          _buildWallpaper(),
+          _buildBackButton(),
+          _buildOptionsBar(),
+        ],
+      ),
     );
   }
 
@@ -48,8 +47,10 @@ class _ImageViewState extends State<ImageView> {
                 child: SizedBox(
                   height: size!.height - padding!.top,
                   width: size!.width,
-                  child: Image.network(provider.images[provider.currentIndex],
-                      fit: BoxFit.cover),
+                  child: Image.network(
+                    provider.images[provider.currentIndex],
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             );
@@ -61,85 +62,95 @@ class _ImageViewState extends State<ImageView> {
 
   Widget _buildBackButton() {
     return Positioned(
-      child: InkWell(
-        onTap: () => Navigator.pop(context),
-        child: Stack(
-          children: <Widget>[
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xff1C1B1B).withOpacity(0.8),
-                borderRadius: BorderRadius.circular(25),
-              ),
-            ),
-            Container(
-              width: 50,
-              height: 50,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white24, width: 1),
-                  borderRadius: BorderRadius.circular(25),
-                  gradient: const LinearGradient(
-                      colors: [Color(0x36FFFFFF), Color(0x0FFFFFFF)],
-                      begin: FractionalOffset.topLeft,
-                      end: FractionalOffset.bottomRight)),
-              child: const Padding(
-                padding: EdgeInsets.only(left: 8),
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.white70,
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: _buildButton(
+        Icons.arrow_back,
+        () => Navigator.pop(context),
       ),
       top: padding!.top + 16,
       left: 16,
     );
   }
 
-  Widget _buildOptionsButton() {
-    return Positioned(
-        bottom: 100,
-        child: Container(
-            height: size!.height - padding!.top,
+  _buildOptionsBar() {
+    return Consumer<AnImagesProvider>(
+      builder: (context, provider, _) {
+        return Positioned(
+          bottom: 40,
+          child: Container(
             width: size!.width,
-            alignment: Alignment.bottomCenter,
-            child: InkWell(
-              onTap: () => showWallpaperBottomSheet(context),
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xff1C1B1B).withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(40),
-                    ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildButton(
+                  Icons.favorite_border,
+                  () {
+                    provider.addToSavedImages(provider.currentIndex);
+                  },
+                ),
+                _buildTextButton(
+                  'APPLY',
+                  () => showWallpaperBottomSheet(context),
+                ),
+                _buildButton(
+                  Icons.download,
+                  () => WallpaperServiceHandler.saveWallpaper(
+                    provider.images[provider.currentIndex],
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white24, width: 1),
-                        borderRadius: BorderRadius.circular(40),
-                        gradient: const LinearGradient(
-                            colors: [Color(0x36FFFFFF), Color(0x0FFFFFFF)],
-                            begin: FractionalOffset.topLeft,
-                            end: FractionalOffset.bottomRight)),
-                    child: const Text(
-                      "Set Wallpaper",
-                      style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ],
-              ),
-            )));
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildButton(IconData icon, Function() onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Icon(
+            icon,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextButton(String text, Function() onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 160,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

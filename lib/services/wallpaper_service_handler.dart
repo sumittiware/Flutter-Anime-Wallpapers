@@ -7,7 +7,12 @@ class WallpaperServiceHandler {
   static Future<void> setWallpaper(String url, int type) async {
     try {
       final String result = await platform.invokeMethod(
-          "setWallpaper", {"imageUrl": url, "screen": type.toString()});
+        "setWallpaper",
+        {
+          "imageUrl": url,
+          "screen": type.toString(),
+        },
+      );
       debugPrint(result);
     } on PlatformException catch (err) {
       debugPrint(err.message);
@@ -16,8 +21,12 @@ class WallpaperServiceHandler {
 
   static Future<void> saveWallpaper(String url) async {
     try {
-      final String result =
-          await platform.invokeMethod("saveWallpaper", {"imageUrl": url});
+      final String result = await platform.invokeMethod(
+        "saveWallpaper",
+        {
+          "imageUrl": url,
+        },
+      );
       debugPrint(result);
     } on PlatformException catch (err) {
       debugPrint(err.message);

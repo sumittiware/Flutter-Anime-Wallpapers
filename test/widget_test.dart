@@ -1,30 +1,71 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:animages/provider/animagesprovider.dart';
+import 'package:animages/screens/homepage.dart';
+import 'package:animages/services/wallpaper_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
 
-import 'package:animages/main.dart';
+class MockWallpaperApiService extends Mock implements WallpaperApiService {}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late AnImagesProvider sut;
+  late MockWallpaperApiService mockWallpaperApiService;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUp(() {
+    mockWallpaperApiService = MockWallpaperApiService();
+    sut = AnImagesProvider(mockWallpaperApiService);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  final wallpapersLists = [
+    'link1',
+    'link2',
+    'link3',
+  ];
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  void arrangeWallpaperServiceReturns() {
+    when(() => mockWallpaperApiService.getWallpapers(sut.currentCategory))
+        .thenAnswer((_) async => wallpapersLists);
+  }
+
+  void arrangeWallpaperServiceReturnsAfter2sec() {
+    when(() => mockWallpaperApiService.getWallpapers(sut.currentCategory))
+        .thenAnswer((_) async {
+      await Future.delayed(const Duration(seconds: 2));
+      return wallpapersLists;
+    });
+  }
+
+  Widget createWidgetUnderTest() {
+    return ChangeNotifierProvider(
+      create: (context) => AnImagesProvider(mockWallpaperApiService),
+      child: MaterialApp(
+        theme: ThemeData(
+          fontFamily: "Roboto",
+        ),
+        debugShowCheckedModeBanner: false,
+        title: 'Waifu Wallpapers',
+        home: const HomePage(),
+      ),
+    );
+  }
+
+  testWidgets('title is displayed', (tester) async {
+    arrangeWallpaperServiceReturns();
+    await tester.pumpWidget(createWidgetUnderTest());
+    expect(find.text('Waifu Wallpaper'), findsOneWidget);
+  });
+
+  group('WallPapers Page', () {
+    testWidgets('Wallpapers are loading', (tester) async {
+      arrangeWallpaperServiceReturnsAfter2sec();
+      await tester.pumpWidget(createWidgetUnderTest());
+      // pump() will trigger the widget to rebuild
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // will wait at the following line till all the animations are finished,
+      // for this case the animations are circularprogress indicator
+      await tester.pumpAndSettle();
+    });
   });
 }

@@ -14,27 +14,23 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<AnImagesProvider>().getImages());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final aniProvider = Provider.of<AnImagesProvider>(context);
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: const Text("Waifu Wallpaper"),
-        actions: [
-          GestureDetector(
-              onTap: () => aniProvider.toogleTypes(),
-              child: const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "18+",
-                    style: TextStyle(fontSize: 18),
-                  ))),
+    return Container(
+      color: bgColor,
+      child: Column(
+        children: const [
+          Categories(),
+          Expanded(
+            child: ImageGrid(),
+          ),
         ],
       ),
-      body:
-          Column(children: const [Categories(), Expanded(child: ImageGrid())]),
     );
   }
 }

@@ -16,20 +16,28 @@ class _ImageCardState extends State<ImageCard> {
   Widget build(BuildContext context) {
     return Consumer<AnImagesProvider>(builder: (_, provider, __) {
       return GridTile(
-          child: GestureDetector(
-              onTap: () {
-                provider.setCurrentImage(widget.index);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const ImageView()));
-              },
-              child: Hero(
-                tag: provider.images[widget.index],
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(provider.images[widget.index],
-                      fit: BoxFit.cover),
-                ),
-              )));
+        child: GestureDetector(
+          onTap: () {
+            provider.setCurrentImage(widget.index);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ImageView(),
+              ),
+            );
+          },
+          child: Hero(
+            tag: provider.images[widget.index],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                provider.images[widget.index],
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+      );
     });
   }
 }
